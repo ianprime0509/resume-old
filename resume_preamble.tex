@@ -1,0 +1,39 @@
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{microtype}
+
+% Font
+\usepackage{tgtermes}
+\usepackage{inconsolata}
+\usepackage[T1]{fontenc}
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\usepackage[
+    colorlinks=true,
+    urlcolor=black,
+    pdfauthor={Ian Johnson},
+    pdftitle={Ian Johnson},
+    pdfsubject={Ian Johnson's résumé},
+    pdfkeywords={resume}
+]{hyperref}
+\urlstyle{rm}
+
+% No paragraph indentation
+\setlength{\parindent}{0cm}
+
+% Fix list spacing
+\setlist{itemsep=2px,topsep=2px,parsep=0px,partopsep=0px,leftmargin=2em}
+% List bullet types
+\renewcommand\labelitemi{--}
+\renewcommand\labelitemii{--}
+
+% Adjust section titles
+\titleformat{\section}{\normalfont\large\bfseries}{}{1em}{}[\titlerule]
+\titlespacing{\section}{0pt}{5pt}{10pt}
+
+% For creating an entry
+\newcommand{\entry}[4]{
+    \textbf{#1 \hfill #2} \\
+    \textit{#3 \hfill #4}
+}
