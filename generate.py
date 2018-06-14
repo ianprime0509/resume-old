@@ -4,7 +4,12 @@
 
 import argparse
 import json
+import re
 import sys
+import textwrap
+
+# TODO: make this regex work for more general URLs (cover more cases)
+url_regex = re.compile(r'https?://[A-Za-z0-9_/.-]*[A-Za-z0-9_/-]')
 
 class Outputter:
     def __init__(self, output=sys.stdout):
@@ -13,12 +18,22 @@ class Outputter:
     def format_address(self, address):
         return address
 
+    # Format all URLs in the input string.
+    def format_all_urls(self, text):
+        new_text = ''
+        match = url_regex.search(text)
+        while match is not None:
+            new_text += text[:match.start()] + self.format_url(match.group(0))
+            text = text[match.end():]
+            match = url_regex.search(text)
+        new_text += text
+        return new_text
+
     def format_date(self, date):
         return date
 
     def format_summary(self, summary):
-        import textwrap
-        return textwrap.fill(summary, width=80)
+        return textwrap.fill(self.format_all_urls(summary), width=80)
 
     def print(self, text=None):
         if text is None:
@@ -81,7 +96,10 @@ class Latex(Outputter):
 
     def format_list(self, items):
         return ('\\begin{itemize}\n'
-            + '\n'.join([r'\item ' + item for item in items])
+            + '\n'.join([textwrap.fill(r'\item ' + item, subsequent_indent='  ',
+                                       break_long_words=False,
+                                       break_on_hyphens=False)
+                         for item in items])
             + '\n\\end{itemize}')
 
     def format_name(self, name):
@@ -112,7 +130,8 @@ class Latex(Outputter):
             self.format_date_range(job['start'], job['end']),
             job['organization'],
             job['location']))
-        self.print(self.format_list(job['experiences']))
+        self.print(self.format_list(map(self.format_all_urls,
+                                        job['experiences'])))
 
     def print_postamble(self):
         self.print('\end{document}')
@@ -128,11 +147,13 @@ class Latex(Outputter):
             self.format_date(school['graduated']),
             school['degree'],
             'Overall G.P.A.: ' + school['gpa']))
-        self.print(self.format_list(school['awards']))
+        self.print(self.format_list(map(self.format_all_urls,
+                                        school['awards'])))
 
     def print_skill(self, skill):
         self.print(self.format_heading(skill['name'], 2))
-        self.print(self.format_list(skill['notes']))
+        self.print(self.format_list(map(self.format_all_urls,
+                                        skill['notes'])))
 
 class Plaintext(Outputter):
     def format_date_range(self, start, end):
@@ -149,7 +170,10 @@ class Plaintext(Outputter):
         return heading + '\n' + underline * len(heading)
 
     def format_list(self, items):
-        return '\n'.join(['* ' + item for item in items])
+        return '\n'.join([textwrap.fill('* ' + item, subsequent_indent='  ',
+                                        break_long_words=False,
+                                        break_on_hyphens=False)
+                          for item in items])
 
     def format_name(self, name):
         return name
