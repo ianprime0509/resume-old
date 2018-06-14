@@ -2,6 +2,7 @@
 # This is a simple script to generate different versions (current TeX and
 # plaintext) of my resume from the 'resume.json' data file.
 
+import argparse
 import json
 import sys
 
@@ -190,7 +191,25 @@ class Plaintext(Outputter):
         self.print(self.format_heading(skill['name'], 2))
         self.print(self.format_list(skill['notes']))
 
-with open('resume.json') as resume_file:
+parser = argparse.ArgumentParser(description='Generate resume from JSON data.')
+parser.add_argument('-o', '--output', default='-', help='set output file')
+parser.add_argument('-p', '--plaintext', action='store_true',
+    help='output in plaintext format')
+parser.add_argument('input', nargs='?', default='resume.json',
+    help='JSON data file')
+args = parser.parse_args()
+
+with open(args.input, 'r') as resume_file:
     resume = json.load(resume_file)
 
-Latex().print_resume(resume)
+if args.output == '-':
+    output = sys.stdout
+else:
+    output = open(args.output, 'w')
+
+if args.plaintext:
+    outputter = Plaintext(output)
+else:
+    outputter = Latex(output)
+
+outputter.print_resume(resume)
