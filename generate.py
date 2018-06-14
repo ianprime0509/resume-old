@@ -26,7 +26,7 @@ class Outputter:
             self.output.write(text + '\n')
 
     def print_education(self, education):
-        self.output.write(self.format_heading('Education'))
+        self.print(self.format_heading('Education'))
         for school in education:
             self.print_school(school)
             self.print()
@@ -40,7 +40,7 @@ class Outputter:
     def print_publications(self, publications):
         self.print(self.format_heading('Publications and presentations'))
         pub_list = ['{} ({})'.format(pub['title'], self.format_url(pub['url']))
-                for pub in publications]
+            for pub in publications]
         self.print(self.format_list(pub_list))
         self.print()
 
@@ -72,11 +72,66 @@ class Latex(Outputter):
     def format_email(self, email):
         return r'\href{{mailto:{0}}}{{{0}}}'.format(email)
 
+    def format_heading(self, heading, level=1):
+        if level == 1:
+            return r'\section*{{{}}}'.format(heading)
+        else:
+            return r'\textbf{{{}}}'.format(heading)
+
+    def format_list(self, items):
+        return ('\\begin{itemize}\n'
+            + '\n'.join([r'\item ' + item for item in items])
+            + '\n\\end{itemize}')
+
     def format_name(self, name):
         return r'{{\Large\bfseries {}}}'.format(name)
 
     def format_phone(self, phone):
         return '({}) {}--{}'.format(phone[0:3], phone[3:6], phone[6:10])
+
+    def format_url(self, url):
+        return r'\url{{{}}}'.format(url)
+
+    def print_header(self, resume):
+        name = self.format_name(resume['name'])
+        address = self.format_address(resume['address'])
+        phone = self.format_phone(resume['phone'])
+        email = self.format_email(resume['email'])
+        self.print(r'''\begin{{center}}
+  {} \\
+  {} \\
+  {} \\
+  {}
+\end{{center}}
+'''.format(name, address, phone, email))
+
+    def print_job(self, job):
+        self.print('\\entry{{{}}}\n{{{}}}\n{{{}}}\n{{{}}}'.format(
+            job['title'],
+            self.format_date_range(job['start'], job['end']),
+            job['organization'],
+            job['location']))
+        self.print(self.format_list(job['experiences']))
+
+    def print_postamble(self):
+        self.print('\end{document}')
+
+    def print_preamble(self):
+        self.print(r'''\documentclass[10pt]{article}
+\input{resume_preamble.tex}
+\begin{document}''')
+
+    def print_school(self, school):
+        self.print('\\entry{{{}}}\n{{{}}}\n{{{}}}\n{{{}}}'.format(
+            school['name'],
+            self.format_date(school['graduated']),
+            school['degree'],
+            'Overall G.P.A.: ' + school['gpa']))
+        self.print(self.format_list(school['awards']))
+
+    def print_skill(self, skill):
+        self.print(self.format_heading(skill['name'], 2))
+        self.print(self.format_list(skill['notes']))
 
 class Plaintext(Outputter):
     def format_date_range(self, start, end):
@@ -119,9 +174,14 @@ class Plaintext(Outputter):
         self.print('Location: ' + job['location'])
         self.print(self.format_list(job['experiences']))
 
+    def print_postamble(self): pass
+
+    def print_preamble(self): pass
+
     def print_school(self, school):
         self.print(self.format_heading(school['name'], 2))
         self.print('Graduated: ' + self.format_date(school['graduated']))
+        self.print('Degree: ' + school['degree'])
         self.print('Overall G.P.A.: ' + school['gpa'])
         self.print('Awards and designations:')
         self.print(self.format_list(school['awards']))
@@ -130,11 +190,7 @@ class Plaintext(Outputter):
         self.print(self.format_heading(skill['name'], 2))
         self.print(self.format_list(skill['notes']))
 
-    def print_postamble(self): pass
-
-    def print_preamble(self): pass
-
 with open('resume.json') as resume_file:
     resume = json.load(resume_file)
 
-Plaintext().print_resume(resume)
+Latex().print_resume(resume)

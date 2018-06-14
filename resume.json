@@ -8,6 +8,7 @@
     {
       "name": "University of Virginia",
       "graduated": "May 2017",
+      "degree": "B.A. in Mathematics (advanced track) and Physics",
       "gpa": "3.96",
       "awards": [
         "Echols Scholar",
@@ -52,7 +53,7 @@
       ]
     },
     {
-      "title": "Vice President & Secretary",
+      "title": "Vice President and Secretary",
       "start": "May 2015",
       "end": "May 2017",
       "organization": "Kinetic Sound",
