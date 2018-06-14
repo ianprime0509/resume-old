@@ -3,8 +3,12 @@
 # plaintext) of my resume from the 'resume.json' data file.
 
 import json
+import sys
 
-class OutputModule:
+class Outputter:
+    def __init__(self, output=sys.stdout):
+        self.output = output
+
     def format_address(self, address):
         return address
 
@@ -15,24 +19,30 @@ class OutputModule:
         import textwrap
         return textwrap.fill(summary, width=80)
 
+    def print(self, text=None):
+        if text is None:
+            self.output.write('\n')
+        else:
+            self.output.write(text + '\n')
+
     def print_education(self, education):
-        print(self.format_heading('Education'))
+        self.output.write(self.format_heading('Education'))
         for school in education:
             self.print_school(school)
-            print()
+            self.print()
 
     def print_experience(self, experience):
-        print(self.format_heading('Experience'))
+        self.print(self.format_heading('Experience'))
         for job in experience:
             self.print_job(job)
-            print()
+            self.print()
 
     def print_publications(self, publications):
-        print(self.format_heading('Publications and presentations'))
+        self.print(self.format_heading('Publications and presentations'))
         pub_list = ['{} ({})'.format(pub['title'], self.format_url(pub['url']))
                 for pub in publications]
-        print(self.format_list(pub_list))
-        print()
+        self.print(self.format_list(pub_list))
+        self.print()
 
     def print_resume(self, resume):
         self.print_preamble()
@@ -45,17 +55,17 @@ class OutputModule:
         self.print_postamble()
 
     def print_skills(self, skills):
-        print(self.format_heading('Skills'))
+        self.print(self.format_heading('Skills'))
         for skill in skills:
             self.print_skill(skill)
-            print()
+            self.print()
 
     def print_summary(self, summary):
-        print(self.format_heading('Summary'))
-        print(self.format_summary(summary))
-        print()
+        self.print(self.format_heading('Summary'))
+        self.print(self.format_summary(summary))
+        self.print()
 
-class Latex(OutputModule):
+class Latex(Outputter):
     def format_date_range(self, start, end):
         return self.format_date(start) + '--' + self.format_date(end)
 
@@ -68,7 +78,7 @@ class Latex(OutputModule):
     def format_phone(self, phone):
         return '({}) {}--{}'.format(phone[0:3], phone[3:6], phone[6:10])
 
-class Plaintext(OutputModule):
+class Plaintext(Outputter):
     def format_date_range(self, start, end):
         return self.format_date(start) + ' - ' + self.format_date(end)
 
@@ -95,30 +105,30 @@ class Plaintext(OutputModule):
         return url
 
     def print_header(self, resume):
-        print(self.format_name(resume['name']))
-        print('Address: ' + self.format_address(resume['address']))
-        print('Phone: ' + self.format_phone(resume['phone']))
-        print('Email: ' + self.format_email(resume['email']))
-        print()
+        self.print(self.format_name(resume['name']))
+        self.print('Address: ' + self.format_address(resume['address']))
+        self.print('Phone: ' + self.format_phone(resume['phone']))
+        self.print('Email: ' + self.format_email(resume['email']))
+        self.print()
 
     def print_job(self, job):
         heading = '{} ({})'.format(job['title'],
                 self.format_date_range(job['start'], job['end']))
-        print(self.format_heading(heading, 2))
-        print('Organization: ' + job['organization'])
-        print('Location: ' + job['location'])
-        print(self.format_list(job['experiences']))
+        self.print(self.format_heading(heading, 2))
+        self.print('Organization: ' + job['organization'])
+        self.print('Location: ' + job['location'])
+        self.print(self.format_list(job['experiences']))
 
     def print_school(self, school):
-        print(self.format_heading(school['name'], 2))
-        print('Graduated: ' + self.format_date(school['graduated']))
-        print('Overall G.P.A.: ' + school['gpa'])
-        print('Awards and designations:')
-        print(self.format_list(school['awards']))
+        self.print(self.format_heading(school['name'], 2))
+        self.print('Graduated: ' + self.format_date(school['graduated']))
+        self.print('Overall G.P.A.: ' + school['gpa'])
+        self.print('Awards and designations:')
+        self.print(self.format_list(school['awards']))
 
     def print_skill(self, skill):
-        print(self.format_heading(skill['name'], 2))
-        print(self.format_list(skill['notes']))
+        self.print(self.format_heading(skill['name'], 2))
+        self.print(self.format_list(skill['notes']))
 
     def print_postamble(self): pass
 
@@ -126,4 +136,5 @@ class Plaintext(OutputModule):
 
 with open('resume.json') as resume_file:
     resume = json.load(resume_file)
-    Plaintext().print_resume(resume)
+
+Plaintext().print_resume(resume)
