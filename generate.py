@@ -110,18 +110,6 @@ class Outputter:
     # subclasses need not provide an implementation.
     def print_preamble(self): pass
 
-    # Output a single school (entry in the education section) from the given
-    # data.
-    def print_school(self, school):
-        raise NotImplementedError()
-
-    # Output a single skill from the given data.  A default implementation is
-    # provided which should work for all sensible output formats.
-    def print_skill(self, skill):
-        self.print(self.format_heading(skill['name'], 2))
-        self.print(self.format_list(map(self.format_all_urls,
-                                        skill['notes'])))
-
     # Output the publications section from the given list of entries.
     def print_publications(self, publications):
         self.print(self.format_heading('Publications and presentations'))
@@ -140,6 +128,18 @@ class Outputter:
         self.print_skills(resume['skills'])
         self.print_publications(resume['publications'])
         self.print_postamble()
+
+    # Output a single school (entry in the education section) from the given
+    # data.
+    def print_school(self, school):
+        raise NotImplementedError()
+
+    # Output a single skill from the given data.  A default implementation is
+    # provided which should work for all sensible output formats.
+    def print_skill(self, skill):
+        self.print(self.format_heading(skill['name'], 2))
+        self.print(self.format_list(map(self.format_all_urls,
+                                        skill['notes'])))
 
     # Output the skills section from the given list of entries.
     def print_skills(self, skills):
