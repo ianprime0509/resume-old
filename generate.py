@@ -93,6 +93,13 @@ class Outputter:
     def print_job(self, job):
         raise NotImplementedError()
 
+    # Output a letter template, which consists of the preamble, header and
+    # postamble.
+    def print_letter(self, resume):
+        self.print_preamble()
+        self.print_header(resume)
+        self.print_postamble()
+
     # Output any text that needs to come at the very end of the document (e.g.
     # '\end{document}' for LaTeX).  Since this is not always necessary,
     # subclasses need not provide an implementation.
@@ -102,18 +109,6 @@ class Outputter:
     # (e.g. '\begin{document}' for LaTeX).  Since this is not always necessary,
     # subclasses need not provide an implementation.
     def print_preamble(self): pass
-
-    # Output a single school (entry in the education section) from the given
-    # data.
-    def print_school(self, school):
-        raise NotImplementedError()
-
-    # Output a single skill from the given data.  A default implementation is
-    # provided which should work for all sensible output formats.
-    def print_skill(self, skill):
-        self.print(self.format_heading(skill['name'], 2))
-        self.print(self.format_list(map(self.format_all_urls,
-                                        skill['notes'])))
 
     # Output the publications section from the given list of entries.
     def print_publications(self, publications):
@@ -133,6 +128,18 @@ class Outputter:
         self.print_skills(resume['skills'])
         self.print_publications(resume['publications'])
         self.print_postamble()
+
+    # Output a single school (entry in the education section) from the given
+    # data.
+    def print_school(self, school):
+        raise NotImplementedError()
+
+    # Output a single skill from the given data.  A default implementation is
+    # provided which should work for all sensible output formats.
+    def print_skill(self, skill):
+        self.print(self.format_heading(skill['name'], 2))
+        self.print(self.format_list(map(self.format_all_urls,
+                                        skill['notes'])))
 
     # Output the skills section from the given list of entries.
     def print_skills(self, skills):
@@ -286,6 +293,8 @@ class Plaintext(Outputter):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Generate resume from JSON data.')
+    parser.add_argument('-l', '--letter', action='store_true',
+        help='output a letter template with header')
     parser.add_argument('-o', '--output', default='-', help='set output file')
     parser.add_argument('-p', '--plaintext', action='store_true',
         help='output in plaintext format')
@@ -306,4 +315,7 @@ if __name__ == '__main__':
     else:
         outputter = Latex(output)
 
-    outputter.print_resume(resume)
+    if args.letter:
+        outputter.print_letter(resume)
+    else:
+        outputter.print_resume(resume)
