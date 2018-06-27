@@ -206,7 +206,9 @@ class Latex(Outputter):
         return r'{{\Large\bfseries {}}}'.format(name)
 
     def format_phone(self, phone):
-        return '({}) {}--{}'.format(phone[0:3], phone[3:6], phone[6:10])
+        text = '({}) {}--{}'.format(phone[0:3], phone[3:6], phone[6:10])
+        url = 'tel:+1' + phone
+        return r'\href{{{}}}{{{}}}'.format(url, text)
 
     def format_summary(self, summary):
         return textwrap.fill(self.format_all_urls(summary), width=80)
