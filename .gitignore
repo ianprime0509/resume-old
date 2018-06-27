@@ -2,3 +2,8 @@
 *.log
 *.out
 *.swp
+
+# For references' privacy:
+references.json
+references.pdf
+references.tex

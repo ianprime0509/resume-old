@@ -20,7 +20,6 @@ Awards and designations:
 * Echols Scholar
 * Edwin E. Floyd Prize in Mathematics (2017)
 * Intermediate Honors (2016)
-* Dean's List (Spring 2015, Spring 2016, Fall 2016)
 
 Experience
 ==========
@@ -73,8 +72,6 @@ Programming
 
 Publications and presentations
 ==============================
-* Spin nilHecke algebras of classical type
-  (https://arxiv.org/abs/1706.06240)
 * Chain Posets (https://arxiv.org/abs/1802.05813)
 * Automated Microwave Frequency Control in Dynamic Nuclear
   Polarization Experiments

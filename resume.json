@@ -1,4 +1,9 @@
 {
+  "metadata": {
+    "title": "Ian Johnson",
+    "subject": "Ian Johnson's resume",
+    "keywords": ["resume"]
+  },
   "name": "Ian Johnson",
   "address": "2925 Rensselaer Court, Vienna, VA 22181",
   "phone": "7038198495",
@@ -13,8 +18,7 @@
       "awards": [
         "Echols Scholar",
         "Edwin E. Floyd Prize in Mathematics (2017)",
-        "Intermediate Honors (2016)",
-        "Dean's List (Spring 2015, Spring 2016, Fall 2016)"
+        "Intermediate Honors (2016)"
       ]
     }
   ],
@@ -83,10 +87,6 @@
     }
   ],
   "publications": [
-    {
-      "title": "Spin nilHecke algebras of classical type",
-      "url": "https://arxiv.org/abs/1706.06240"
-    },
     {
       "title": "Chain Posets",
       "url": "https://arxiv.org/abs/1802.05813"
