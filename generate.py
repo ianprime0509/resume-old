@@ -107,8 +107,10 @@ class Outputter:
 
     # Output any text that needs to come at the very beginning of the document
     # (e.g. '\begin{document}' for LaTeX).  Since this is not always necessary,
-    # subclasses need not provide an implementation.
-    def print_preamble(self): pass
+    # subclasses need not provide an implementation.  The metadata parameter
+    # specifies the (optional) metadata that can be embedded in targets that
+    # support it (e.g. titles for PDF documents).
+    def print_preamble(self, metadata=None): pass
 
     # Output the publications section from the given list of entries.
     def print_publications(self, publications):
@@ -118,9 +120,29 @@ class Outputter:
         self.print(self.format_list(pub_list))
         self.print()
 
+    # Output a single reference.
+    def print_reference(self, reference):
+        raise NotImplementedError()
+
+    # Output the references page from the given data.
+    def print_references(self, references):
+        metadata = references.get('metadata', {})
+        if 'author' not in metadata:
+            metadata['author'] = references['name']
+        self.print_preamble(metadata)
+        self.print_header(references)
+        self.print(self.format_heading('References'))
+        for reference in references['references']:
+            self.print_reference(reference)
+            self.print()
+        self.print_postamble()
+
     # Output the entire resume from the given data.
     def print_resume(self, resume):
-        self.print_preamble()
+        metadata = resume.get('metadata', {})
+        if 'author' not in metadata:
+            metadata['author'] = resume['name']
+        self.print_preamble(metadata)
         self.print_header(resume)
         self.print_summary(resume['summary'])
         self.print_education(resume['education'])
@@ -214,13 +236,34 @@ class Latex(Outputter):
         self.print(self.format_list(map(self.format_all_urls,
                                         job['experiences'])))
 
+    def print_reference(self, reference):
+        self.print('\\reference{{{}}}\n{{{}}}\n{{{}}}\n{{{}}}'.format(
+            reference['name'],
+            reference['relationship'],
+            self.format_email(reference['email']),
+            self.format_phone(reference['phone'])))
+
     def print_postamble(self):
         self.print('\end{document}')
 
-    def print_preamble(self):
+    def print_preamble(self, metadata=None):
         self.print(r'''\documentclass[10pt]{article}
-\input{resume_preamble.tex}
-\begin{document}''')
+\input{common_preamble.tex}''')
+        hypersetup = {}
+        if metadata is not None:
+            if 'author' in metadata:
+                hypersetup['pdfauthor'] = metadata['author']
+            if 'title' in metadata:
+                hypersetup['pdftitle'] = metadata['title']
+            if 'subject' in metadata:
+                hypersetup['pdfsubject'] = metadata['subject']
+            if 'keywords' in metadata:
+                hypersetup['pdfkeywords'] = ', '.join(metadata['keywords'])
+        if hypersetup:
+            tags = ['{}={{{}}}'.format(key, value) for key, value
+                                                   in hypersetup.items()]
+            self.print('\\hypersetup{{\n  {}\n}}'.format(',\n  '.join(tags)))
+        self.print(r'\begin{document}')
 
     def print_school(self, school):
         self.print('\\entry{{{}}}\n{{{}}}\n{{{}}}\n{{{}}}'.format(
@@ -280,7 +323,13 @@ class Plaintext(Outputter):
 
     def print_postamble(self): pass
 
-    def print_preamble(self): pass
+    def print_preamble(self, metadata=None): pass
+
+    def print_reference(self, reference):
+        self.print(self.format_heading(reference['name'], 2))
+        self.print('Relationship: ' + reference['relationship'])
+        self.print('Email: ' + self.format_email(reference['email']))
+        self.print('Phone: ' + self.format_phone(reference['phone']))
 
     def print_school(self, school):
         self.print(self.format_heading(school['name'], 2))
@@ -290,20 +339,37 @@ class Plaintext(Outputter):
         self.print('Awards and designations:')
         self.print(self.format_list(school['awards']))
 
+# Exits the program with an error message and the given status.
+def die(message, status=1):
+    print('{}: {}'.format(sys.argv[0], message), file=sys.stderr)
+    sys.exit(status)
+
+# Derive the built-in ArgumentParser to get custom error formatting.
+class ArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        die(message, 2)
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Generate resume from JSON data.')
+    parser = ArgumentParser(description='Generate resume from JSON data.')
     parser.add_argument('-l', '--letter', action='store_true',
         help='output a letter template with header')
     parser.add_argument('-o', '--output', default='-', help='set output file')
     parser.add_argument('-p', '--plaintext', action='store_true',
         help='output in plaintext format')
-    parser.add_argument('input', nargs='?', default='resume.json',
-        help='JSON data file')
+    parser.add_argument('-r', '--references', action='store_true',
+        help='output references sheet from reference data')
+    parser.add_argument('input', nargs='?', help='JSON data file')
     args = parser.parse_args()
 
-    with open(args.input, 'r') as resume_file:
-        resume = json.load(resume_file)
+    # Make sure conflicting arguments are not passed.
+    if args.letter and args.references:
+        die("arguments '--letter' and '--references' conflict")
+    # Set appropriate default for input filename.
+    if args.input is None:
+        args.input = 'references.json' if args.references else 'resume.json'
+
+    with open(args.input, 'r') as input_file:
+        data = json.load(input_file)
 
     if args.output == '-':
         output = sys.stdout
@@ -316,6 +382,8 @@ if __name__ == '__main__':
         outputter = Latex(output)
 
     if args.letter:
-        outputter.print_letter(resume)
+        outputter.print_letter(data)
+    elif args.references:
+        outputter.print_references(data)
     else:
-        outputter.print_resume(resume)
+        outputter.print_resume(data)

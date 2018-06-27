@@ -11,11 +11,7 @@
 
 \usepackage[
     colorlinks=true,
-    urlcolor=black,
-    pdfauthor={Ian Johnson},
-    pdftitle={Ian Johnson},
-    pdfsubject={Ian Johnson's resume},
-    pdfkeywords={resume}
+    urlcolor=black
 ]{hyperref}
 \urlstyle{rm}
 
@@ -38,4 +34,12 @@
 \newcommand{\entry}[4]{
     \textbf{#1 \hfill #2} \\
     \textit{#3 \hfill #4}
+}
+
+% For listing a reference.  The parameters are reference name, relationship,
+% email and phone number.
+\newcommand{\reference}[4]{
+  \textbf{#1} (#2) \\
+  Email: #3 \\
+  Phone: #4 \par\bigskip
 }
