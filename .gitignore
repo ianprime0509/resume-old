@@ -3,7 +3,10 @@
 *.out
 *.swp
 
+# Ignore output files to reduce merge conflicts.
+*.pdf
+*.tex
+*.txt
+
 # For references' privacy:
 references.json
-references.pdf
-references.tex
