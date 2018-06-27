@@ -1,6 +1,13 @@
 # My resume
 
-This is the working repository for my résumé.  The main branch should contain
+Preliminary note: if you are interested in seeing my resume in PDF format,
+please see [the GitHub releases page for this
+project](https://github.com/ianprime0509/resume/releases) and look at the most
+recent release.  I had to remove PDF files from the repository itself because
+they were causing too many merge conflicts, and anyways it's not really good
+practice to include generated files in Git repositories (usually).
+
+This is the working repository for my resume.  The main branch should contain
 *all* notable experience, skills, etc. with other (local) branches being used
 to trim things down to a single page by removing details not needed for
 particular applications.
