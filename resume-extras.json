@@ -1,0 +1,16 @@
+{
+  "education": [
+    {
+      "name": "University of Virginia",
+      "awards": [
+        "Dean's List (Spring 2015, Spring 2016, Fall 2016)"
+      ]
+    }
+  ],
+  "publications": [
+    {
+      "title": "Spin nilHecke algebras of classical type",
+      "url": "https://arxiv.org/abs/1706.06240"
+    }
+  ]
+}
