@@ -62,6 +62,9 @@ class Outputter:
     def format_phone(self, phone):
         raise NotImplementedError()
 
+    def format_summary(self, summary):
+        raise NotImplementedError()
+
     def format_url(self, url):
         raise NotImplementedError()
 
@@ -246,7 +249,7 @@ class Latex(Outputter):
             self.format_phone(reference['phone'])))
 
     def print_postamble(self):
-        self.print('\end{document}')
+        self.print(r'\end{document}')
 
     def print_preamble(self, metadata=None):
         self.print(r'''\documentclass[10pt]{article}
